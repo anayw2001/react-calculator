@@ -9,11 +9,19 @@ const CalculatorOperations = {
   '=': (prevValue, nextValue) => nextValue
 }
 
+const OperationsToWords = {
+  '/': 'divide',
+  '*': 'multiply',
+  '+': 'plus',
+  '-': 'minus',
+  '=': 'equals'
+}
+
 export default class Calculator extends React.Component {
   constructor() {
     super()
     this.state = {
-      viewText: "",
+      viewText: "0",
       prevValue: null,
       operated: false,
       operator: ""
@@ -22,6 +30,7 @@ export default class Calculator extends React.Component {
     this.eval = this.eval.bind(this)
     this.clearAll = this.clearAll.bind(this)
     this.clearDisplay = this.clearDisplay.bind(this)
+    this.negate = this.negate.bind(this)
   }
 
   clearDisplay() {
@@ -36,6 +45,12 @@ export default class Calculator extends React.Component {
       prevValue: null,
       operated: false,
       operator: ""
+    })
+  }
+
+  negate() {
+    this.setState({
+      viewText: String(-1*parseFloat(this.state.viewText))
     })
   }
 
@@ -82,49 +97,63 @@ export default class Calculator extends React.Component {
 
   renderSquare(i) {
     const className = "key-" + String(i)
-    return <CalculatorButton class={className} value={i} onPress={() => this.inputDigit(i)}/>
+    return <CalculatorButton className={className} value={i} onPress={() => this.inputDigit(i)}/>
   }
   renderFunction(fn) {
-    const className = "fn-" + fn
-    return <CalculatorButton class={className} value={fn} onPress={() => this.eval(fn)}/>
+    const className = "fn-" + OperationsToWords[fn]
+    return <CalculatorButton className={className} value={fn} onPress={() => this.eval(fn)}/>
   }
   render() {
-    return <div>
-      {this.state.viewText}
-      <div className="calculator-row">
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-          {this.renderSquare(3)}
-          {this.renderFunction('+')}
-        </div>
-        <div className="calculator-row">
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-          {this.renderSquare(6)}
-          {this.renderFunction('-')}
-        </div>
-        <div className="calculator-row">
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-          {this.renderSquare(9)}
-          {this.renderFunction('*')}
-        </div>
-        <div className="calculator-row-zero">
-          {this.renderSquare(0)}
-          {/* {this.renderSquare('.')} */}
-          {this.renderFunction('/')}
+    return <div className="calculator-root">
+      <CalculatorDisplay value={this.state.viewText} />
+        <div className="calculator-clear-row">
+          <CalculatorButton className="clear-all" value="AC" onPress={() => this.clearAll()}/>
+          <CalculatorButton className="clear" value="C" onPress={() => this.clearDisplay()}/>
+          <CalculatorButton className="negate" value="±" onPress={() => this.negate()} />
           {this.renderFunction('=')}
-          <CalculatorButton class="clear-all" value="AC" onPress={() => this.clearAll()}/>
-          <CalculatorButton class="clear" value="C" onPress={() => this.clearDisplay()}/>
         </div>
+        <div className="main-keypad">
+          <div className="calculator-row-1">
+            {this.renderSquare(1)}
+            {this.renderSquare(2)}
+            {this.renderSquare(3)}
+            {this.renderFunction('+')}
+          </div>
+          <div className="calculator-row-2">
+            {this.renderSquare(4)}
+            {this.renderSquare(5)}
+            {this.renderSquare(6)}
+            {this.renderFunction('-')}
+          </div>
+          <div className="calculator-row-3">
+            {this.renderSquare(7)}
+            {this.renderSquare(8)}
+            {this.renderSquare(9)}
+            {this.renderFunction('*')}
+          </div>
+          <div className="calculator-row-zero">
+            {this.renderSquare(0)}
+            {this.renderSquare('.')}
+            {this.renderFunction('/')}
+          </div>
+        </div>
+        
     </div>
   }
 }
 
 class CalculatorButton extends React.Component {
   render() {
-    return <button onClick={this.props.onPress}>
+    return <button onClick={this.props.onPress} className={`calculator-key ${this.props.className}`}>
       {this.props.value}
     </button>
+  }
+}
+
+class CalculatorDisplay extends React.Component {
+  render() {
+    return <div className="calculator-display">
+      {this.props.value}
+    </div>
   }
 }
