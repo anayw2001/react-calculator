@@ -47,7 +47,7 @@ export default class Calculator extends React.Component {
     if (prevValue == null) {
       this.setState({
         prevValue: inputValue,
-        viewText: "0"
+        //viewText: "0"
       })
     } else if (operator) {
       const currentValue = prevValue || 0
@@ -66,16 +66,16 @@ export default class Calculator extends React.Component {
   }
 
   inputDigit(i) {
-    const viewText = this.state
+    const { viewText, operated } = this.state
     console.log("click")
-    if (this.state.operated) {
+    if (operated) {
       this.setState({
-        viewText: viewText === '0' ? String(i) : viewText + i
+        viewText: viewText === '0' ? String(i) : viewText + String(i)
       })
     } else {
       this.setState({
         viewText: String(i),
-        operated: false
+        operated: true
       })
     }
   }
@@ -111,7 +111,7 @@ export default class Calculator extends React.Component {
         </div>
         <div className="calculator-row-zero">
           {this.renderSquare(0)}
-          {this.renderSquare('.')}
+          {/* {this.renderSquare('.')} */}
           {this.renderFunction('/')}
           {this.renderFunction('=')}
           <CalculatorButton class="clear-all" value="AC" onPress={() => this.clearAll()}/>
