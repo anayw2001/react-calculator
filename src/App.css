@@ -28,6 +28,14 @@
   color: #61dafb;
 }
 
+button {
+  background-color: grey;
+}
+
+button:active {
+  box-shadow: inset 0px 0px 80px 0px rgba(0,0,0,0.25);
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
