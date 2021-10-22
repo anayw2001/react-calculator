@@ -10,6 +10,14 @@ const CalculatorOperations = {
   '√x': (prevValue, nextValue) => nextValue**0.5,
   'n√x': (prevValue, nextValue) => prevValue**(1/nextValue),
   '^': (prevValue, nextValue) => prevValue**nextValue,
+  '!': (prevValue, nextValue) => ((num)=> {
+    if (num === 0 || num === 1)
+      return 1;
+    for (var i = num - 1; i >= 1; i--) {
+      num *= i;
+    }
+    return num;
+  })(nextValue),
 }
 
 const OperationsToWords = {
@@ -20,7 +28,8 @@ const OperationsToWords = {
   '=': 'equals',
   '√x': 'sqrt',
   'n√x': 'nth-rt',
-  '^': 'exp'
+  '^': 'exp',
+  '!': 'fact',
 }
 
 export default class Calculator extends React.Component {
@@ -34,6 +43,7 @@ export default class Calculator extends React.Component {
     }
     this.inputDigit = this.inputDigit.bind(this)
     this.eval = this.eval.bind(this)
+    this.evalSingleOperandFn = this.evalSingleOperandFn.bind(this)
     this.clearAll = this.clearAll.bind(this)
     this.clearDisplay = this.clearDisplay.bind(this)
     this.negate = this.negate.bind(this)
@@ -62,50 +72,45 @@ export default class Calculator extends React.Component {
 
   eval(nextOperator) {
     const { viewText, prevValue, operator } = this.state
-    console.log(this.state)
     const inputValue = parseFloat(viewText)
-    console.log(prevValue)
-    console.log(operator)
-    // sqrt has special handling in that it takes one operand
-    if (prevValue == null && operator !== '√x') {
+    console.log("eval prev: " + prevValue)
+    console.log("eval op: " + operator)
+    if (prevValue == null) {
       this.setState({
-        prevValue: inputValue,
-        //viewText: "0"
+        prevValue: inputValue
       })
     } else if (operator) {
+      console.log("operating")
       const currentValue = prevValue || 0
       const newValue = CalculatorOperations[operator](currentValue, inputValue)
-      
+      console.log("operated val: " + newValue)
       this.setState({
-        viewText: String(newValue),
         prevValue: newValue,
-        operator: nextOperator
       })
+      this.setState(state => ({...state, viewText: String(newValue)}))
+      console.log(this.state)
     }
+    console.log("output: " + this.state.viewText)
     this.setState({
       operated: false,
       operator: nextOperator
     })
   }
 
-  evalSqrt() {
+  evalSingleOperandFn(fn) {
+    console.log("operator: " + this.state.operator)
+    if (this.state.operator) {
+      console.log("eval")
+      this.eval(this.state.operator)
+    }
     const { viewText, prevValue } = this.state
     const inputValue = parseFloat(viewText)
     console.log("inputValue: " + inputValue)
     console.log("prevValue: " + prevValue)
-    if (prevValue && !inputValue) {
-      // hack to induce immediate evaluation
-      this.setState({
-        operator: '√x'
-      })
-      this.eval('√x')
-    } else {
-      this.setState({
-          viewText: inputValue ** 0.5,
-          operator: '√x'
-        }
-      )
-    }
+    this.setState({
+        viewText: String(CalculatorOperations[fn](null, inputValue))
+      }
+    )
   }
 
   inputDigit(i) {
@@ -130,6 +135,10 @@ export default class Calculator extends React.Component {
   renderFunction(fn) {
     const className = "fn-" + OperationsToWords[fn]
     return <CalculatorButton className={className} value={fn} onPress={() => this.eval(fn)}/>
+  }
+  renderSingle(fn) {
+    const className = "fn-" + OperationsToWords[fn]
+    return <CalculatorButton className={className} value={fn} onPress={() => this.evalSingleOperandFn(fn)}/>
   }
   render() {
     return <div className="calculator-root">
@@ -167,9 +176,10 @@ export default class Calculator extends React.Component {
         </div>
 
         <div className="advanced-keypad">
-          <CalculatorButton className='fn-sqrt' value='√x' onPress={() => this.evalSqrt()}/>
+          {this.renderSingle('√x')}
           {this.renderFunction('n√x')}
           {this.renderFunction('^')}
+          {this.renderSingle('!')}
         </div> 
     </div>
   }
