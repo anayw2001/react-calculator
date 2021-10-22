@@ -24,6 +24,12 @@
   color: white;
 }
 
+.calculator-root {
+  max-width: 400px;
+  margin: auto;
+  margin-top: 10%;
+}
+
 button {
   width: 100px;
   height: 100px;
@@ -38,6 +44,8 @@ button {
   width: 384px;
   padding: 8px;
   text-align: right;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .calculator-key {

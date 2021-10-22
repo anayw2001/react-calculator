@@ -6,7 +6,10 @@ const CalculatorOperations = {
   '*': (prevValue, nextValue) => prevValue * nextValue,
   '+': (prevValue, nextValue) => prevValue + nextValue,
   '-': (prevValue, nextValue) => prevValue - nextValue,
-  '=': (prevValue, nextValue) => nextValue
+  '=': (prevValue, nextValue) => nextValue,
+  '√x': (prevValue, nextValue) => nextValue**0.5,
+  'n√x': (prevValue, nextValue) => prevValue**(1/nextValue),
+  '^': (prevValue, nextValue) => prevValue**nextValue,
 }
 
 const OperationsToWords = {
@@ -14,7 +17,10 @@ const OperationsToWords = {
   '*': 'multiply',
   '+': 'plus',
   '-': 'minus',
-  '=': 'equals'
+  '=': 'equals',
+  '√x': 'sqrt',
+  'n√x': 'nth-rt',
+  '^': 'exp'
 }
 
 export default class Calculator extends React.Component {
@@ -56,10 +62,12 @@ export default class Calculator extends React.Component {
 
   eval(nextOperator) {
     const { viewText, prevValue, operator } = this.state
+    console.log(this.state)
     const inputValue = parseFloat(viewText)
     console.log(prevValue)
     console.log(operator)
-    if (prevValue == null) {
+    // sqrt has special handling in that it takes one operand
+    if (prevValue == null && operator !== '√x') {
       this.setState({
         prevValue: inputValue,
         //viewText: "0"
@@ -78,6 +86,26 @@ export default class Calculator extends React.Component {
       operated: false,
       operator: nextOperator
     })
+  }
+
+  evalSqrt() {
+    const { viewText, prevValue } = this.state
+    const inputValue = parseFloat(viewText)
+    console.log("inputValue: " + inputValue)
+    console.log("prevValue: " + prevValue)
+    if (prevValue && !inputValue) {
+      // hack to induce immediate evaluation
+      this.setState({
+        operator: '√x'
+      })
+      this.eval('√x')
+    } else {
+      this.setState({
+          viewText: inputValue ** 0.5,
+          operator: '√x'
+        }
+      )
+    }
   }
 
   inputDigit(i) {
@@ -137,7 +165,12 @@ export default class Calculator extends React.Component {
             {this.renderFunction('/')}
           </div>
         </div>
-        
+
+        <div className="advanced-keypad">
+          <CalculatorButton className='fn-sqrt' value='√x' onPress={() => this.evalSqrt()}/>
+          {this.renderFunction('n√x')}
+          {this.renderFunction('^')}
+        </div> 
     </div>
   }
 }
