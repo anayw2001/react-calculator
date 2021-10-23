@@ -1,6 +1,8 @@
 import './App.css';
 import React from 'react';
 
+// supported operations by calculator
+// factorial function was inlined so I didn't have to define it as a global function
 const CalculatorOperations = {
   '/': (prevValue, nextValue) => prevValue / nextValue,
   '*': (prevValue, nextValue) => prevValue * nextValue,
@@ -20,6 +22,7 @@ const CalculatorOperations = {
   })(nextValue),
 }
 
+// for automatically assigning keys to each function key.
 const OperationsToWords = {
   '/': 'divide',
   '*': 'multiply',
@@ -49,12 +52,14 @@ export default class Calculator extends React.Component {
     this.negate = this.negate.bind(this)
   }
 
+  // C operator
   clearDisplay() {
     this.setState({
       viewText: "0"
     })
   }
 
+  // AC operator
   clearAll() {
     this.setState({
       viewText: "0",
@@ -64,12 +69,14 @@ export default class Calculator extends React.Component {
     })
   }
 
+  // +/- operator
   negate() {
     this.setState({
       viewText: String(-1*parseFloat(this.state.viewText))
     })
   }
 
+  // evaluator for operators with two operands
   evalDouble(nextOperator) {
     const { viewText, prevValue, operator } = this.state
     const inputValue = parseFloat(viewText)
@@ -91,8 +98,10 @@ export default class Calculator extends React.Component {
     })
   }
 
+  // evalulator for single-operand operators
+  // these get evaluated immediately
   evalSingleOperandFn(fn) {
-    const { viewText, prevValue } = this.state
+    const { viewText } = this.state
     const inputValue = parseFloat(viewText)
     // evaluate immediately
     const newValue = CalculatorOperations[fn](null, inputValue)
@@ -103,6 +112,7 @@ export default class Calculator extends React.Component {
     )
   }
 
+  // inputting 0-9, .
   inputDigit(i) {
     const { viewText, operated } = this.state
     console.log("click")
@@ -118,18 +128,24 @@ export default class Calculator extends React.Component {
     }
   }
 
+  // rendering 0-9 and other common calculator keys
   renderSquare(i) {
     const className = "key-" + String(i)
     return <CalculatorButton className={className} value={i} onPress={() => this.inputDigit(i)}/>
   }
+  // rendering function keys (+, -, *, etc.)
   renderFunction(fn) {
     const className = "fn-" + OperationsToWords[fn]
     return <CalculatorButton className={className} value={fn} onPress={() => this.evalDouble(fn)}/>
   }
+  // rendering single-operator functions
+  // the only difference from the above function is the single-operand evaluator function versus the double-operand evaluator function.
   renderSingle(fn) {
     const className = "fn-" + OperationsToWords[fn]
     return <CalculatorButton className={className} value={fn} onPress={() => this.evalSingleOperandFn(fn)}/>
   }
+  // renders the body of the calculator
+  // display at the top, then keypad below
   render() {
     return <div className="calculator-root">
       <CalculatorDisplay value={this.state.viewText} />
@@ -164,7 +180,6 @@ export default class Calculator extends React.Component {
             {this.renderFunction('/')}
           </div>
         </div>
-
         <div className="advanced-keypad">
           {this.renderSingle('√x')}
           {this.renderFunction('n√x')}
@@ -175,6 +190,7 @@ export default class Calculator extends React.Component {
   }
 }
 
+// basic body classes
 class CalculatorButton extends React.Component {
   render() {
     return <button onClick={this.props.onPress} className={`calculator-key ${this.props.className}`}>
