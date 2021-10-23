@@ -42,7 +42,7 @@ export default class Calculator extends React.Component {
       operator: ""
     }
     this.inputDigit = this.inputDigit.bind(this)
-    this.eval = this.eval.bind(this)
+    this.evalDouble = this.evalDouble.bind(this)
     this.evalSingleOperandFn = this.evalSingleOperandFn.bind(this)
     this.clearAll = this.clearAll.bind(this)
     this.clearDisplay = this.clearDisplay.bind(this)
@@ -70,27 +70,21 @@ export default class Calculator extends React.Component {
     })
   }
 
-  eval(nextOperator) {
+  evalDouble(nextOperator) {
     const { viewText, prevValue, operator } = this.state
     const inputValue = parseFloat(viewText)
-    console.log("eval prev: " + prevValue)
-    console.log("eval op: " + operator)
     if (prevValue == null) {
       this.setState({
         prevValue: inputValue
       })
     } else if (operator) {
-      console.log("operating")
       const currentValue = prevValue || 0
       const newValue = CalculatorOperations[operator](currentValue, inputValue)
-      console.log("operated val: " + newValue)
       this.setState({
+        viewText: String(newValue),
         prevValue: newValue,
       })
-      this.setState(state => ({...state, viewText: String(newValue)}))
-      console.log(this.state)
     }
-    console.log("output: " + this.state.viewText)
     this.setState({
       operated: false,
       operator: nextOperator
@@ -98,17 +92,13 @@ export default class Calculator extends React.Component {
   }
 
   evalSingleOperandFn(fn) {
-    console.log("operator: " + this.state.operator)
-    if (this.state.operator) {
-      console.log("eval")
-      this.eval(this.state.operator)
-    }
     const { viewText, prevValue } = this.state
     const inputValue = parseFloat(viewText)
-    console.log("inputValue: " + inputValue)
-    console.log("prevValue: " + prevValue)
+    // evaluate immediately
+    const newValue = CalculatorOperations[fn](null, inputValue)
     this.setState({
-        viewText: String(CalculatorOperations[fn](null, inputValue))
+        viewText: String(newValue),
+        prevValue: newValue
       }
     )
   }
@@ -134,7 +124,7 @@ export default class Calculator extends React.Component {
   }
   renderFunction(fn) {
     const className = "fn-" + OperationsToWords[fn]
-    return <CalculatorButton className={className} value={fn} onPress={() => this.eval(fn)}/>
+    return <CalculatorButton className={className} value={fn} onPress={() => this.evalDouble(fn)}/>
   }
   renderSingle(fn) {
     const className = "fn-" + OperationsToWords[fn]
